@@ -16,13 +16,13 @@ class TasksScreen extends StatefulWidget {
   State<TasksScreen> createState() => _TasksScreenState();
 }
 
-Database? database;
 final List<Widget> screens = [
   const ArchivedTasks(),
   const Tasks(),
   const DoneTasks(),
 ];
 var scafoldkey = GlobalKey<ScaffoldState>();
+var formkey = GlobalKey<FormState>();
 
 class _TasksScreenState extends State<TasksScreen> {
   @override
@@ -30,6 +30,8 @@ class _TasksScreenState extends State<TasksScreen> {
     super.initState();
     createDatabase();
   }
+
+  Database? database;
 
   TimeOfDay now = TimeOfDay.now();
   TimeOfDay? tasktime;
@@ -43,77 +45,100 @@ class _TasksScreenState extends State<TasksScreen> {
   var daycontroller = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: scafoldkey,
-      extendBody: true,
-      resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        backgroundColor: maincolor,
-        title: Text(tasks),
-        centerTitle: true,
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-          enableFeedback: true,
-          iconSize: 30,
-          elevation: .3,
-          backgroundColor: Colors.white70,
-          selectedItemColor: maincolor,
-          showSelectedLabels: true,
-          unselectedItemColor: seccolor,
-          type: BottomNavigationBarType.fixed,
-          onTap: (index) {
-            setState(() {
-              currentindex = index;
-            });
-          },
-          currentIndex: currentindex,
-          items: [
-            BottomNavigationBarItem(
-              label: archivedtasks,
-              icon: const Icon(Icons.archive),
-            ),
-            BottomNavigationBarItem(
-              label: alltasks,
-              icon: const Icon(Icons.menu),
-            ),
-            BottomNavigationBarItem(
-              label: donetasks,
-              icon: const Icon(Icons.check_circle_outline),
-            ),
-          ]),
-      floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
-      floatingActionButton: Visibility(
-        visible: true,
-        child: FloatingActionButton(
-          autofocus: false,
-          clipBehavior: Clip.hardEdge,
+    return Form(
+      key: formkey,
+      child: Scaffold(
+        key: scafoldkey,
+        extendBody: true,
+        resizeToAvoidBottomInset: true,
+        appBar: AppBar(
           backgroundColor: maincolor,
-          onPressed: () {},
-          isExtended: false,
+          title: Text(tasks),
+          centerTitle: true,
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+            enableFeedback: true,
+            iconSize: 30,
+            elevation: .3,
+            backgroundColor: Colors.white70,
+            selectedItemColor: maincolor,
+            showSelectedLabels: true,
+            unselectedItemColor: seccolor,
+            type: BottomNavigationBarType.fixed,
+            onTap: (index) {
+              setState(() {
+                currentindex = index;
+              });
+            },
+            currentIndex: currentindex,
+            items: [
+              BottomNavigationBarItem(
+                label: archivedtasks,
+                icon: const Icon(Icons.archive),
+              ),
+              BottomNavigationBarItem(
+                label: alltasks,
+                icon: const Icon(Icons.menu),
+              ),
+              BottomNavigationBarItem(
+                label: donetasks,
+                icon: const Icon(Icons.check_circle_outline),
+              ),
+            ]),
+        floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
+        floatingActionButton: Visibility(
+          visible: true,
+          child: FloatingActionButton(
+            autofocus: false,
+            clipBehavior: Clip.hardEdge,
+            backgroundColor: maincolor,
+            onPressed: () {},
+            isExtended: false,
+            child: IconButton(
+                onPressed: () {
+                  if (isshowbottomsheet) {
+                    if (formkey.currentState!.validate()) {
+                      print(titlecontroller.text);
+                      print(timecontroller.text);
+                      print(daycontroller.text);
+                      insertToDatabase(
+                        title: titlecontroller.text,
+                        time: timecontroller.text,
+                        day: daycontroller.text,
+                      );
+                      Navigator.pop(context);
+                      isshowbottomsheet = false;
+                      setState(() {
+                        fabicon = Icons.add;
+                      });
+                    }
+                  } else {
+                    showBottomSheet();
+                    isshowbottomsheet = true;
+                    setState(() {
+                      fabicon = Icons.done_outline;
+                    });
+                    titlecontroller.clear();
+                    timecontroller.clear();
+                    daycontroller.clear();
+                  }
+                },
+                icon: Icon(fabicon)),
+            elevation: 0.0,
+          ),
+        ),
+        body: Center(
           child: IconButton(
               onPressed: () {
-                if (isshowbottomsheet) {
-                  Navigator.pop(context);
-                  isshowbottomsheet = false;
-                  setState(() {
-                    fabicon = Icons.add_task_outlined;
-                  });
-                } else {
-                  showBottomSheet();
-                  isshowbottomsheet = true;
-                  setState(() {
-                    fabicon = Icons.done_outline;
-                  });
-                  titlecontroller.clear();
-                  timecontroller.clear();
-                  daycontroller.clear();
-                }
+                insertToDatabase(
+                  title: 'srag',
+                  time: '2',
+                  day: '44',
+                );
               },
-              icon: Icon(fabicon)),
-          elevation: 0.0,
+              icon: const Icon(Icons.abc)),
         ),
       ),
-      body: screens[currentindex],
     );
   }
 
@@ -143,11 +168,15 @@ class _TasksScreenState extends State<TasksScreen> {
                     tasktime = await showTimePicker(
                         context: context, initialTime: now);
                     if (tasktime == null) {
-                      timecontroller.text =
-                          '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+                      setState(() {
+                        timecontroller.text =
+                            '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')} ${now.period.name.toString()}';
+                      });
                     } else {
-                      timecontroller.text =
-                          '${tasktime?.hour.toString().padLeft(2, '0')}:${tasktime?.minute.toString().padLeft(2, '0')}';
+                      setState(() {
+                        timecontroller.text =
+                            '${tasktime?.hour.toString().padLeft(2, '0')}:${tasktime?.minute.toString().padLeft(2, '0')} ${tasktime?.period.name.toString()}';
+                      });
                     }
                   },
                   controller: timecontroller,
@@ -169,11 +198,16 @@ class _TasksScreenState extends State<TasksScreen> {
                         firstDate: DateTime.now(),
                         lastDate: DateTime.parse('2024-01-01'));
                     if (taskday == null) {
-                      daycontroller.text =
-                          DateFormat.yMMMd().format(DateTime.now()).toString();
+                      setState(() {
+                        daycontroller.text = DateFormat.yMMMd()
+                            .format(DateTime.now())
+                            .toString();
+                      });
                     } else {
-                      daycontroller.text =
-                          DateFormat.yMMMd().format(taskday!).toString();
+                      setState(() {
+                        daycontroller.text =
+                            DateFormat.yMMMd().format(taskday!).toString();
+                      });
                     }
                   },
                   controller: daycontroller,
@@ -193,28 +227,37 @@ class _TasksScreenState extends State<TasksScreen> {
     });
   }
 
-  void createDatabase() async {
-    database = await openDatabase(tasksdb, version: 1, onCreate: (db, version) {
-      db
-          .execute(
-              'CREATE TABLE Test (id INTEGER PRIMARY KEY, $tasktitle TEXT,$date TEXT,$status TEXT)')
-          .then((value) {})
-          .catchError((error) {});
-    }, onOpen: (database) {});
+  createDatabase() async {
+    database =
+        await openDatabase('tasks.db', version: 1, onCreate: (db, version) {
+      print('datapase created');
+      db.execute(
+        '''CREATE TABLE task (id INTEGER PRIMARY KEY, title TEXT,time TEXT,day TEXT,status TEXT)''',
+      ).then((value) {
+        print('table created ');
+      }).catchError((error) {});
+    }, onOpen: (database) {
+      print('database opend $database');
+    });
   }
 
-  void insertToDatabase() async {
-    await database
+  insertToDatabase({
+    required String title,
+    required String time,
+    required String day,
+  }) async {
+    database
         ?.transaction((txn) async {
           txn.rawInsert(
-              'INSERT INTO Test($tasktitle, $date, $status) VALUES("some name", "12-6", "DONE")');
+              '''INSERT INTO task (title,time,day,status) VALUES("$title", "$time","$day","new")''');
         })
-        .then((value) {})
-        .catchError((e) {});
-    return;
+        .then((value) => print(value))
+        .catchError((e) {
+          print('error is $e');
+        });
+    return null;
   }
 
-  void getFromDatabase() {}
-  void updateFromDatabase() {}
-  void deleteFromDatabase() {}
+  updateFromDatabase() {}
+  deleteFromDatabase() {}
 }
