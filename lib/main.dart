@@ -1,8 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:tasksapp/businesslogic/appcubit/app_cubit.dart';
 import 'package:tasksapp/presentaion/screens/mainscreen.dart';
+import 'package:tasksapp/shared/bloc_observer.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
-  runApp(const Tasks());
+  BlocOverrides.runZoned(
+    () {
+      runApp(
+        MultiBlocProvider(
+          providers: [
+            BlocProvider<AppCubit>(create: (context) => AppCubit()),
+          ],
+          child: const Tasks(),
+        ),
+      );
+    },
+    blocObserver: MyBlocObserver(),
+  );
 }
 
 class Tasks extends StatefulWidget {
@@ -15,11 +30,9 @@ class Tasks extends StatefulWidget {
 class _TasksState extends State<Tasks> {
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-        
-        
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: TasksScreen(),
+      home: HomeScreen(),
     );
   }
 }

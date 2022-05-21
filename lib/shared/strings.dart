@@ -7,3 +7,4 @@ String tasktitle = 'Task Title';
 String date = 'Task Time';
 String status = 'status';
 String day = 'Task Day';
+List<Map> task = [];
