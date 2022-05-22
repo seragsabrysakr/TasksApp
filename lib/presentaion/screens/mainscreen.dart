@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tasksapp/businesslogic/appcubit/app_cubit.dart';
 import 'package:tasksapp/presentaion/widget/custombootmsheet.dart';
+import 'package:tasksapp/presentaion/widget/customtext.dart';
 import 'package:tasksapp/presentaion/widget/customtextformfield.dart';
 import 'package:tasksapp/shared/colors.dart';
 import 'package:tasksapp/shared/strings.dart';
@@ -102,9 +103,99 @@ class HomeScreen extends StatelessWidget {
                               Navigator.pop(context);
                               isshowbottomsheet = false;
                               appcubit.changicon(Icons.add);
-                            } 
+                            }
                           } else {
-                            showBottomSheet(context);
+                            scafoldkey.currentState
+                                ?.showBottomSheet((context) {
+                                  return CustomBottomSheet(
+                                    widget: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 15, vertical: 10),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          CustomTextField(
+                                              prefix: Icons.title,
+                                              type: TextInputType.name,
+                                              controller: titlecontroller,
+                                              label: tasktitle,
+                                              validator: (value) {
+                                                if (value!.isEmpty) {
+                                                  return 'Required';
+                                                } else {
+                                                  return null;
+                                                }
+                                              }),
+                                          CustomTextField(
+                                              type: TextInputType.number,
+                                              ontap: () async {
+                                                tasktime = await showTimePicker(
+                                                    context: context,
+                                                    initialTime: now);
+                                                if (tasktime == null) {
+                                                  timecontroller.text =
+                                                      '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')} ${now.period.name.toString()}';
+                                                } else {
+                                                  timecontroller.text =
+                                                      '${tasktime?.hour.toString().padLeft(2, '0')}:${tasktime?.minute.toString().padLeft(2, '0')} ${tasktime?.period.name.toString()}';
+                                                }
+                                              },
+                                              controller: timecontroller,
+                                              prefix: Icons.alarm,
+                                              label: date,
+                                              validator: (value) {
+                                                if (value!.isEmpty) {
+                                                  return 'Required';
+                                                } else {
+                                                  return null;
+                                                }
+                                              }),
+                                          CustomTextField(
+                                              type: TextInputType.number,
+                                              ontap: () async {
+                                                taskday = await showDatePicker(
+                                                    context: context,
+                                                    initialDate: DateTime.now(),
+                                                    firstDate: DateTime.now(),
+                                                    lastDate: DateTime.parse(
+                                                        '2024-01-01'));
+                                                if (taskday == null) {
+                                                  daycontroller.text =
+                                                      DateFormat.yMMMd()
+                                                          .format(
+                                                              DateTime.now())
+                                                          .toString();
+                                                } else {
+                                                  daycontroller.text =
+                                                      DateFormat.yMMMd()
+                                                          .format(taskday!)
+                                                          .toString();
+                                                }
+                                              },
+                                              controller: daycontroller,
+                                              prefix: Icons.calendar_month,
+                                              label: day,
+                                              validator: (value) {
+                                                if (value!.isEmpty) {
+                                                  return 'Required';
+                                                } else {
+                                                  return null;
+                                                }
+                                              })
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                })
+                                .closed
+                                .then((value) {
+                                  isshowbottomsheet = false;
+                                  isshowbottomsheet = false;
+                                  appcubit
+                                      .changicon(Icons.add); // setState(() {
+                                  //   fabicon =
+                                  // });
+                                });
                             isshowbottomsheet = true;
                             appcubit.changicon(Icons.done_outline);
 
@@ -120,101 +211,16 @@ class HomeScreen extends StatelessWidget {
                 body: ConditionalBuilder(
                   condition: appcubit.mytask.isNotEmpty,
                   builder: (context) => appcubit.screens[appcubit.currentindex],
-                  fallback: (context) => const Center(
-                      child: CircularProgressIndicator(
-                    color: maincolor,
-                  )),
+                  fallback: (context) => Center(
+                      child: CustomText(
+                          color: maincolor,
+                          size: 30,
+                          weight: FontWeight.bold,
+                          data: 'Welcome To My App\n    By Serag Sakr')),
                 ),
               ),
             );
           },
         ));
-  }
-
-// bottom sheet
-  void showBottomSheet(BuildContext context) {
-    scafoldkey.currentState
-        ?.showBottomSheet((context) {
-          return CustomBottomSheet(
-            widget: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CustomTextField(
-                      prefix: Icons.title,
-                      type: TextInputType.name,
-                      controller: titlecontroller,
-                      label: tasktitle,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Required';
-                        } else {
-                          return null;
-                        }
-                      }),
-                  CustomTextField(
-                      type: TextInputType.number,
-                      ontap: () async {
-                        tasktime = await showTimePicker(
-                            context: context, initialTime: now);
-                        if (tasktime == null) {
-                          timecontroller.text =
-                              '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')} ${now.period.name.toString()}';
-                        } else {
-                          timecontroller.text =
-                              '${tasktime?.hour.toString().padLeft(2, '0')}:${tasktime?.minute.toString().padLeft(2, '0')} ${tasktime?.period.name.toString()}';
-                        }
-                      },
-                      controller: timecontroller,
-                      prefix: Icons.alarm,
-                      label: date,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Required';
-                        } else {
-                          return null;
-                        }
-                      }),
-                  CustomTextField(
-                      type: TextInputType.number,
-                      ontap: () async {
-                        taskday = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime.now(),
-                            lastDate: DateTime.parse('2024-01-01'));
-                        if (taskday == null) {
-                          daycontroller.text = DateFormat.yMMMd()
-                              .format(DateTime.now())
-                              .toString();
-                        } else {
-                          daycontroller.text =
-                              DateFormat.yMMMd().format(taskday!).toString();
-                        }
-                      },
-                      controller: daycontroller,
-                      prefix: Icons.calendar_month,
-                      label: day,
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Required';
-                        } else {
-                          return null;
-                        }
-                      })
-                ],
-              ),
-            ),
-          );
-        })
-        .closed
-        .then((value) {
-          isshowbottomsheet = false;
-          BlocProvider.of<AppCubit>(context).fabicon = Icons.add;
-          // setState(() {
-          //   fabicon =
-          // });
-        });
   }
 }

@@ -13,6 +13,9 @@ class AppCubit extends Cubit<AppState> {
   static AppCubit get(context) => BlocProvider.of(context);
 //tasks map
   List<Map> mytask = [];
+  List<Map> task = [];
+  List<Map> donetask = [];
+  List<Map> archtask = [];
   //floating icon
   IconData fabicon = Icons.add;
 //bottoomsheet index
@@ -53,10 +56,7 @@ class AppCubit extends Cubit<AppState> {
           .then((value) {})
           .catchError((error) {});
     }, onOpen: (database) {
-      getDataFromDatabase(database).then((value) {
-        mytask = value;
-        emit(DatabaseGetdata());
-      });
+      getDataFromDatabase(database);
     }).then((value) {
       database = value;
       emit(DatabaseCreated());
@@ -81,12 +81,47 @@ class AppCubit extends Cubit<AppState> {
   }
 
   //getdata from Database
-  Future<List<Map>> getDataFromDatabase(database) async {
-    List<Map> tasks = await database.rawQuery('SELECT * FROM task');
-
-    return tasks;
+  getDataFromDatabase(database) async {
+    task = [];
+    donetask = [];
+    archtask = [];
+    return database.rawQuery('SELECT * FROM task').then((value) {
+      mytask = value;
+      for (var e in value) {
+        if (e['status'] == 'new') {
+          task.add(e);
+          print('tasks is' + task.toString());
+        } else if (e['status'] == 'done') {
+          donetask.add(e);
+          print('donetasks is' + donetask.toString());
+        } else {
+          archtask.add(e);
+          print('archivedtasks is' + archtask.toString());
+        }
+      }
+      emit(DatabaseGetdata());
+    });
   }
 
-  updateFromDatabase() {}
-  deleteFromDatabase() {}
+// update database
+
+  void updateDatabase({required String status, required int id}) async {
+    database?.rawUpdate(
+        'UPDATE task SET status = ? WHERE id = ?', [status, id]).then((value) {
+      emit(DatabaseUpdateData());
+    }).then((value) {
+      getDataFromDatabase(database);
+
+      emit(DatabaseGetdata());
+    });
+  }
+
+  //delet from database
+  void deleteFromDatabase(int id) async {
+    database!.rawDelete('DELETE FROM task WHERE id = ?', [id]).then((value) {
+      emit(DeleteDatabaseState());
+
+      getDataFromDatabase(database);
+    });
+  }
 }

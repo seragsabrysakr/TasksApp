@@ -11,12 +11,15 @@ class Tasks extends StatelessWidget {
     return BlocConsumer<AppCubit, AppState>(
       listener: (context, state) {},
       builder: (context, state) {
-        var app = AppCubit.get(context);
+      var tasks= AppCubit.get(context).task;
 
         return Center(
           child: ListView.separated(
               itemBuilder: (context, index) =>
-                  CustomTaskCard(task: app.mytask[index]),
+                  CustomTaskCard(
+                    checkcolor: Colors.grey,
+                  archcolor: Colors.grey,
+                    task: tasks[index]),
               separatorBuilder: (context, index) => Padding(
                     padding: const EdgeInsetsDirectional.only(start: 20),
                     child: Container(
@@ -25,7 +28,7 @@ class Tasks extends StatelessWidget {
                       color: Colors.grey.shade100,
                     ),
                   ),
-              itemCount: app.mytask.length),
+              itemCount: tasks.length),
         );
       },
     );
