@@ -1,0 +1,13 @@
+
+
+{
+  "app_name": "Check App Version",
+  "new_app_version": "1.5.0",
+  "new_app_code": "36",
+  "android_package": "com.besimsoft.example",
+  "ios_package": "com.besimsoft.example",
+  "windows_package" : "example",
+  "linux_package" : "example",
+  "macos_package" : "example",
+  "ios_app_id": "324324"
+}
