@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tasksapp/businesslogic/appcubit/app_cubit.dart';
 import 'package:tasksapp/presentaion/screens/mainscreen.dart';
 import 'package:tasksapp/shared/bloc_observer.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
   BlocOverrides.runZoned(
@@ -10,6 +10,7 @@ void main() {
       runApp(
         MultiBlocProvider(
           providers: [
+            //srag
             BlocProvider<AppCubit>(create: (context) => AppCubit()),
           ],
           child: const Tasks(),
